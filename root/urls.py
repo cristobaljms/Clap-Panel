@@ -1,4 +1,4 @@
-"""clap URL Configuration
+"""root URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.0/topics/http/urls/
@@ -17,11 +17,15 @@ from django.contrib import admin
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
 from .views import index, login, beneficiarios, operativos, reportes
+from beneficiarios.views import BeneficiariosListView, BeneficiariosCreateView, BeneficiariosUpdateView, DeleteBeneficiario
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index),
-    path('beneficiarios/', beneficiarios, name='beneficiarios'),
+    path('beneficiarios/', BeneficiariosListView.as_view(), name='beneficiarios'),
+    path('beneficiarios/crear', BeneficiariosCreateView.as_view(), name='beneficiarios_crear'),
+    path('beneficiarios/editar/<int:pk>/', BeneficiariosUpdateView.as_view(), name='beneficiarios_editar'),
+    path('beneficiarios/eliminar/<int:pk>/', DeleteBeneficiario, name='beneficiarios_eliminar'),
     path('operativos/', operativos, name='operativos'),
     path('reportes/', reportes, name='reportes'),
     path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
