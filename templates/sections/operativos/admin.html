@@ -1,0 +1,25 @@
+{% extends 'base.html' %} {% block content %}
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Administrar operativo</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+                {% if operativo.status %}
+                <button type="button" class="btn btn-sm btn-danger">Cerrar</button>
+                {% else %}
+                <button type="button" class="btn btn-sm btn-success">Abrir</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% include 'partials/messages.html' %}
+    <select class="js-example-basic-single" name="state">
+        <option value="AL">Alabama</option>
+        <option value="WY">Wyoming</option>
+    </select>
+</main>
+<script type="text/javascript">
+
+
+
+</script> {% endblock %}

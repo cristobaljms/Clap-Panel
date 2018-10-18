@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block content %}
 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Nuevo beneficiario</h1>
+        <h1 class="h2">Editar beneficiario</h1>
     </div>
     {% include 'partials/messages.html' %}
     <form method="post">
@@ -20,6 +20,15 @@
                 <option>{{beneficiario.cargo}}</option>
                 {% if cargo %} {% for c in cargo %}
                 <option>{{c.nombre}}</option>
+                {% endfor %} {% endif %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="gerencia">Gerencia</label>
+            <select value="{{beneficiario.gerencia.id}}" class="form-control" id="gerencia" name="gerencia">
+                <option>{{beneficiario.gerencia}}</option>
+                {% if gerencias %} {% for g in gerencias %}
+                <option value="{{g.id}}">{{g.nombre}}</option>
                 {% endfor %} {% endif %}
             </select>
         </div>

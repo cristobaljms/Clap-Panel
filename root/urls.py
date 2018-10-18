@@ -18,6 +18,7 @@ from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
 from .views import index, login, beneficiarios, operativos, reportes
 from beneficiarios.views import BeneficiariosListView, BeneficiariosCreateView, BeneficiariosUpdateView, DeleteBeneficiario
+from operativos.views import OperativosListView, OperativosCreateView, OperativosDetailView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,7 +27,9 @@ urlpatterns = [
     path('beneficiarios/crear', BeneficiariosCreateView.as_view(), name='beneficiarios_crear'),
     path('beneficiarios/editar/<int:pk>/', BeneficiariosUpdateView.as_view(), name='beneficiarios_editar'),
     path('beneficiarios/eliminar/<int:pk>/', DeleteBeneficiario, name='beneficiarios_eliminar'),
-    path('operativos/', operativos, name='operativos'),
+    path('operativos/', OperativosListView.as_view(), name='operativos'),
+    path('operativos/crear', OperativosCreateView.as_view(), name='operativos_crear'),
+    path('operativos/admin/<int:pk>/', OperativosDetailView.as_view(), name='operativos_administrar'),
     path('reportes/', reportes, name='reportes'),
     path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout')

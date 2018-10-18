@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views import generic
-from .models import Beneficiarios, Cargo
+from .models import Beneficiarios, Cargo, Gerencia
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
@@ -30,7 +30,11 @@ class BeneficiariosCreateView(generic.CreateView):
 
     def get(self, request, *args, **kwargs):
         c = Cargo.objects.all().order_by('nombre')
-        context = {'cargo':c}
+        g = Gerencia.objects.all()
+        context = {
+            'cargo':c,
+            'gerencias':g
+        }
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -38,6 +42,7 @@ class BeneficiariosCreateView(generic.CreateView):
         nombres = request.POST.get('nombres')
         cargo = request.POST.get('cargo')
         status = request.POST.get('status')
+        gerencia = request.POST.get('gerencia')
 
         if validcedula(cedula) != True:
             messages.add_message(request, messages.ERROR, 'La cedula no es valida')
@@ -55,7 +60,8 @@ class BeneficiariosCreateView(generic.CreateView):
             messages.add_message(request, messages.ERROR, 'El beneficiario ingresado ya se encuentra registrado.')
             return render(request, self.template_name)
         else:
-            b = Beneficiarios(cedula=cedula, nombres=nombres, cargo=cargo, status=status)
+            gerencia = Gerencia.objects.get(pk=gerencia)
+            b = Beneficiarios(cedula=cedula, nombres=nombres, cargo=cargo, status=status, gerencia=gerencia)
             b.save()
 
         messages.add_message(request, messages.SUCCESS, 'Beneficiario creado con exito')
@@ -67,11 +73,14 @@ class BeneficiariosUpdateView(generic.View):
     def get(self, request, *args, **kwargs):
         cargos = Cargo.objects.all().order_by('nombre')
         beneficiarios = Beneficiarios.objects.get(cedula=kwargs['pk'])
+        gerencias = Gerencia.objects.all()
 
         context = {
             'cargo': cargos, 
-            'beneficiario': beneficiarios
+            'beneficiario': beneficiarios,
+            'gerencias':gerencias
         }
+
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -79,6 +88,7 @@ class BeneficiariosUpdateView(generic.View):
         nombres = request.POST.get('nombres')
         cargo = request.POST.get('cargo')
         status = request.POST.get('status')
+        gerencia = request.POST.get('gerencia')
 
         try:
             b = Beneficiarios.objects.get(cedula=cedula)
@@ -98,11 +108,13 @@ class BeneficiariosUpdateView(generic.View):
             messages.add_message(request, messages.ERROR, 'El cargo no es valido')
             return redirect('beneficiarios_editar', pk=cedula)
         
+        g = Gerencia.objects.get(pk=gerencia)
 
         b.cedula = cedula
         b.nombres = nombres
         b.cargo = cargo
         b.status = status
+        b.gerencia = g
         b.save()
 
         messages.add_message(request, messages.SUCCESS, 'Beneficiario editado con exito')

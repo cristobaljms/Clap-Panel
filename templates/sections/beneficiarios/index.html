@@ -21,6 +21,7 @@
                     <th style="padding: 10px 10px;">Cedula</th>
                     <th style="padding: 10px 10px;">Nombres</th>
                     <th style="padding: 10px 10px;">Cargo</th>
+                    <th style="padding: 10px 10px;">Gerencia</th>
                     <th style="padding: 10px 10px;">Status</th>
                     <th style="width: 100px">Accion</th>
                 </tr>
@@ -31,6 +32,7 @@
                     <td>{{beneficiario.pk}}</td>
                     <td class="text-dark">{{beneficiario.nombres}}</td>
                     <td>{{beneficiario.cargo}}</td>
+                    <td>{{beneficiario.gerencia}}</td>
                     {% if beneficiario.status %}
                     <td>
                         <span class="badge badge-success">Activo</span>
