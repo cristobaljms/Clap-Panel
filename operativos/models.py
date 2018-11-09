@@ -15,4 +15,5 @@ class Entrega(models.Model):
     operativo = models.ForeignKey(Operativo, on_delete=models.CASCADE)
     comision_servicio = models.IntegerField(default=0)
     nbolsas = models.IntegerField(default=1)
+    especial = models.IntegerField(default=0)
     observacion = models.CharField(max_length=255, default='')

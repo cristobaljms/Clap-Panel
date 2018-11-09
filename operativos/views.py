@@ -189,9 +189,9 @@ class EntregaCreateView(generic.CreateView):
         beneficiario = Beneficiarios.objects.get(pk=pk_beneficiario)
 
         if (comision == 'on'):
-            e = Entrega(operativo=operativo,beneficiario=beneficiario, nbolsas=nbolsas, observacion=observacion, comision=1)
+            e = Entrega(operativo=operativo,beneficiario=beneficiario, nbolsas=nbolsas, observacion=observacion, especial=1, comision_servicio=1)
         else:
-            e = Entrega(operativo=operativo,beneficiario=beneficiario, nbolsas=nbolsas, observacion=observacion)
+            e = Entrega(operativo=operativo,beneficiario=beneficiario, nbolsas=nbolsas, observacion=observacion, especial=1)
         e.save()
 
         messages.add_message(request, messages.SUCCESS, 'Bolsa entregada a {}'.format(beneficiario.nombres))

@@ -19,6 +19,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from .views import index, login, beneficiarios, operativos, reportes
 from beneficiarios.views import BeneficiarioDetailView,BeneficiariosListView, BeneficiariosCreateView, BeneficiariosUpdateView, BeneficiarioDeleteView
 from operativos.views import EntregaCreateView ,OperativosListView, OperativosCreateView, OperativosDetailView, handleEntregar, OperativoCerrarView, OperativoAbrirView
+from reportes.views import write_pdf_view, ReportesOperativosListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,7 +36,8 @@ urlpatterns = [
     path('operativos/abrir/<int:pk>/', OperativoAbrirView.as_view(), name='operativos_abrir'),
     path('operativos/entregar/<int:pk_operativo>/<int:pk_beneficiario>/', handleEntregar, name='operativos_entregar'),
     path('operativos/entregarespecial/<int:pk_operativo>/<int:pk_beneficiario>/', EntregaCreateView.as_view(), name='operativos_entregar_especial'),
-    path('reportes/', reportes, name='reportes'),
+    path('reportes/', ReportesOperativosListView.as_view(), name='reportes'),
+    path('reportes/general/<int:pk_operativo>/', write_pdf_view, name="reportes_generar"),
     path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout')
 ]
