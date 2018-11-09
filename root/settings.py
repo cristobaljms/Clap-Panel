@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'root.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'clapdbtest',
+        'NAME': 'clapdb',
         'USER': 'postgres',
         'PASSWORD': '87267B0l1v4r',
         'HOST': '192.168.1.5',

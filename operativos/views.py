@@ -4,8 +4,10 @@ from .models import Operativo
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
-import re
-
+import re, json
+from django.core.serializers import serialize
+from beneficiarios.models import Beneficiarios, Gerencia
+from operativos.models import Entrega
 
 class OperativosListView(generic.ListView):
     model = Operativo
@@ -34,8 +36,46 @@ class OperativosDetailView(generic.View):
 
     def get(self, request, *args, **kwargs):
         operativo = Operativo.objects.get(id=kwargs['pk'])
+        soperativo = {
+            'pk': operativo.id,
+            'status' : operativo.status,
+            'nbolsas' : operativo.nbolsas,
+            'nbolsasForaneas' : operativo.nbolsasForaneas,
+            'responsable' : operativo.responsable,
+            'proveedor' : operativo.proveedor,
+        }
+
+        entregas = Entrega.objects.filter(operativo=operativo)
+
+        beneficiarios = Beneficiarios.objects.all()
+        sbeneficiarios = json.loads(serialize("json", beneficiarios))
+        abeneficiarios = []
+        nbentregadas = 0
+
+        
+        #sbeneficiarios_beneficiados = json.loads(serialize("json", beneficiarios_beneficiados))
+        for b in sbeneficiarios:
+            id = b['pk']
+            nombres = b['fields']['nombres']
+            gerencia = Gerencia.objects.get(pk=b['fields']['gerencia'])
+            b_object = {
+                'pk':id,
+                'nombres':nombres,
+                'gerencia': gerencia.nombre,
+            }
+
+            for entrega in entregas:
+                if entrega.beneficiario.pk == id:
+                    b_object['status'] = 1
+                    nbentregadas = nbentregadas + entrega.nbolsas
+            abeneficiarios.append(b_object)
+
+        soperativo['nbentregadas'] = nbentregadas
+        soperativo['nbrestantes'] = operativo.nbolsas - nbentregadas
+        
         context = {
-            'operativo': operativo
+            'operativo': soperativo,
+            'beneficiarios':abeneficiarios
         }
         return render(request, self.template_name, context)
 
@@ -91,6 +131,81 @@ class OperativosUpdateView(generic.View):
 
         messages.add_message(request, messages.SUCCESS, 'Beneficiario editado con exito')
         return redirect('beneficiarios')
+
+class OperativoCerrarView(generic.DeleteView):
+    template_name = "sections/operativos/cerrar.html"
+    def get(self, request, *args, **kwargs):
+        operativo = Operativo.objects.get(pk=kwargs['pk'])
+        context = {
+            'operativo': operativo
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        operativo = Operativo.objects.get(pk=kwargs['pk'])
+        operativo.status = 0
+        operativo.save()
+        messages.add_message(request, messages.SUCCESS, 'Operativo cerrado')
+        return redirect('operativos' )
+
+
+class OperativoAbrirView(generic.DeleteView):
+    template_name = "sections/operativos/abrir.html"
+    def get(self, request, *args, **kwargs):
+        operativo = Operativo.objects.get(pk=kwargs['pk'])
+        context = {
+            'operativo': operativo
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        operativo = Operativo.objects.get(pk=kwargs['pk'])
+        operativo.status = 1
+        operativo.save()
+        messages.add_message(request, messages.SUCCESS, 'Operativo abierto')
+        return redirect('operativos' )
+
+class EntregaCreateView(generic.CreateView):
+    template_name = "sections/operativos/entrega_especial.html"
+
+    def get(self, request, *args, **kwargs):
+        operativo = Operativo.objects.get(pk=kwargs['pk_operativo'])
+        beneficiario = Beneficiarios.objects.get(pk=kwargs['pk_beneficiario'])
+
+        context = {
+            'operativo' : operativo,
+            'beneficiario' : beneficiario
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        pk_beneficiario = request.POST.get('pk_beneficiario')
+        pk_operativo = request.POST.get('pk_operativo')
+        nbolsas = request.POST.get('nbolsas')
+        observacion = request.POST.get('observacion')
+        comision = request.POST.get('comision')
+
+        operativo = Operativo.objects.get(pk=pk_operativo)
+        beneficiario = Beneficiarios.objects.get(pk=pk_beneficiario)
+
+        if (comision == 'on'):
+            e = Entrega(operativo=operativo,beneficiario=beneficiario, nbolsas=nbolsas, observacion=observacion, comision=1)
+        else:
+            e = Entrega(operativo=operativo,beneficiario=beneficiario, nbolsas=nbolsas, observacion=observacion)
+        e.save()
+
+        messages.add_message(request, messages.SUCCESS, 'Bolsa entregada a {}'.format(beneficiario.nombres))
+        return redirect('operativos_administrar', pk=pk_operativo)
+
+
+def handleEntregar(request, pk_operativo, pk_beneficiario):
+    operativo = Operativo.objects.get(pk=pk_operativo)
+    beneficiario = Beneficiarios.objects.get(pk=pk_beneficiario)
+    entrega = Entrega(operativo=operativo, beneficiario=beneficiario)
+    entrega.save()
+    messages.add_message(request, messages.SUCCESS, 'Bolsa entregada a {}'.format(beneficiario.nombres))
+    return redirect('operativos_administrar', pk=pk_operativo)
+
 
 def validcedula(cedula):
     if (re.match('\d', cedula) and (len(cedula) == 8 or len(cedula)== 7)):

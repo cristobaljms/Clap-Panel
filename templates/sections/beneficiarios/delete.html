@@ -1,0 +1,18 @@
+{% extends 'base.html' %} {% block content %}
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Deshabilitar beneficiario</h1>
+    </div>
+    <form method="post">
+        {%csrf_token%}
+        <input value="{{beneficiario.id}}" type="hidden" id="id" name="id" required>
+        <div class="form-group">
+            <label for="observacion">Observacion</label>
+            <textarea class="form-control" id="observacion" name="observacion" rows="3"></textarea>
+        </div>
+        <h3>¿Esta seguro que quiere deshabilitar este beneficiario?</h3>
+        <h5></h5>
+        <button type="submit" class="btn btn-sm btn-primary">Deshabilitar</button>
+    </form>
+</main>
+{% endblock %}

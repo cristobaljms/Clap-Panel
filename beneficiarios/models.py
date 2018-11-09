@@ -14,11 +14,11 @@ class Gerencia(models.Model):
     def __str__(self):
         return '{}'.format(self.nombre)
 
-
 class Beneficiarios(models.Model):
     cedula = models.CharField(blank=False, max_length=12, primary_key=True)
     nombres = models.CharField(max_length=255, default='')
     cargo = models.CharField(max_length=255, default='')
+    observacion = models.CharField(max_length=255, default='')
     status = models.IntegerField(default=1)
     gerencia = models.ForeignKey(Gerencia, on_delete=models.CASCADE)
 

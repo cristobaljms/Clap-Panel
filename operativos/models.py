@@ -9,4 +9,10 @@ class Operativo(models.Model):
     nbolsasForaneas = models.IntegerField(default=0)
     responsable = models.CharField(max_length=255, default='')
     proveedor = models.CharField(max_length=255, default='')
-    beneficiario = models.ManyToManyField(Beneficiarios)
+
+class Entrega(models.Model):
+    beneficiario = models.ForeignKey(Beneficiarios, on_delete=models.CASCADE)
+    operativo = models.ForeignKey(Operativo, on_delete=models.CASCADE)
+    comision_servicio = models.IntegerField(default=0)
+    nbolsas = models.IntegerField(default=1)
+    observacion = models.CharField(max_length=255, default='')

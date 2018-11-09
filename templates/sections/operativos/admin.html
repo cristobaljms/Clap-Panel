@@ -1,25 +1,87 @@
 {% extends 'base.html' %} {% block content %}
 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Administrar operativo</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
-            <div class="btn-group mr-2">
-                {% if operativo.status %}
-                <button type="button" class="btn btn-sm btn-danger">Cerrar</button>
-                {% else %}
-                <button type="button" class="btn btn-sm btn-success">Abrir</button>
-                {% endif %}
-            </div>
-        </div>
+  <div
+    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+  >
+    <h1 class="h2">Administrar operativo</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+      <div class="btn-group mr-2">
+        {% if operativo.status %}
+        <a
+          href="{% url 'operativos_cerrar' operativo.pk %}"
+          class="btn btn-sm btn-danger"
+          >Cerrar</a
+        >
+        {% else %}
+        <a
+          href="{% url 'operativos_abrir' operativo.pk %}"
+          class="btn btn-sm btn-success"
+          >Abrir</a
+        >
+        {% endif %}
+      </div>
     </div>
-    {% include 'partials/messages.html' %}
-    <select class="js-example-basic-single" name="state">
-        <option value="AL">Alabama</option>
-        <option value="WY">Wyoming</option>
-    </select>
+  </div>
+  {% include 'partials/messages.html' %} {% if operativo.status %}
+
+  <div class="row">
+    <div class="col-md-6">
+      <h6>Proveedor: {{ operativo.proveedor }}</h6>
+      <h6>Responsable: {{ operativo.responsable }}</h6>
+    </div>
+    <div class="col-md-6">
+      <h6>Bolsas totales: {{ operativo.nbolsas }}</h6>
+      <h6>Bolsas entregadas: {{ operativo.nbentregadas }}</h6>
+      <h6>Bolsas restantes: {{ operativo.nbrestantes }}</h6>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table id="beneficiarios_tabla">
+      <thead>
+        <tr>
+          <th style="padding: 10px 10px;">Cedula</th>
+          <th style="padding: 10px 10px;">Nombres</th>
+          <th style="padding: 10px 10px;">Gerencia</th>
+          <th style="width: 200px; padding: 10px 10px;">Beneficiado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if beneficiarios %} {% for beneficiario in beneficiarios %}
+        <tr>
+          <td>{{ beneficiario.pk }}</td>
+          <td class="text-dark">{{ beneficiario.nombres }}</td>
+          <td>{{ beneficiario.gerencia }}</td>
+          {% if beneficiario.status %}
+          <td><span class="badge badge-success">Recibio</span></td>
+          {% else %}
+          <td style="width: 200px">
+            <a
+              href="{% url 'operativos_entregar' operativo.pk beneficiario.pk %}"
+              class="btn btn-sm btn-primary"
+              data-toggle="tooltip"
+              data-placement="top"
+            >
+              Entregar
+            </a>
+            <a
+              href="{% url 'operativos_entregar_especial' operativo.pk beneficiario.pk %}"
+              class="btn btn-sm btn-info"
+              data-toggle="tooltip"
+              data-placement="top"
+            >
+              Especial
+            </a>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %} {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <h3>Operativo Cerrado</h3>
+  {% endif %}
 </main>
-<script type="text/javascript">
-
-
-
-</script> {% endblock %}
+{% endblock %}

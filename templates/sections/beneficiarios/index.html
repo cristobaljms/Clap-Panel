@@ -20,7 +20,6 @@
                 <tr>
                     <th style="padding: 10px 10px;">Cedula</th>
                     <th style="padding: 10px 10px;">Nombres</th>
-                    <th style="padding: 10px 10px;">Cargo</th>
                     <th style="padding: 10px 10px;">Gerencia</th>
                     <th style="padding: 10px 10px;">Status</th>
                     <th style="width: 100px">Accion</th>
@@ -31,7 +30,6 @@
                 <tr>
                     <td>{{beneficiario.pk}}</td>
                     <td class="text-dark">{{beneficiario.nombres}}</td>
-                    <td>{{beneficiario.cargo}}</td>
                     <td>{{beneficiario.gerencia}}</td>
                     {% if beneficiario.status %}
                     <td>
@@ -44,11 +42,11 @@
                     {% endif %}
 
                     <td style="width: 100px">
-                        <a href="{% url 'beneficiarios_editar' beneficiario.pk %}" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top">
-                            <span data-feather="edit"></span>
+                        <a href="{% url 'beneficiarios_detalles' beneficiario.pk %}" class="btn btn-sm btn-info" data-placement="top">
+                            <span data-feather="eye"></span>
                         </a>
-                        <a href="#" onclick="ConfirmDesBlock({{ beneficiario.pk }})" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top">
-                            <span data-feather="trash-2"></span>
+                        <a href="{% url 'beneficiarios_editar' beneficiario.pk %}" class="btn btn-sm btn-primary" data-placement="top">
+                            <span data-feather="edit"></span>
                         </a>
                     </td>
                 </tr>
@@ -57,4 +55,6 @@
         </table>
     </div>
 </main>
+
+
 {% endblock %}

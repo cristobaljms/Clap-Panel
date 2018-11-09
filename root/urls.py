@@ -17,19 +17,24 @@ from django.contrib import admin
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
 from .views import index, login, beneficiarios, operativos, reportes
-from beneficiarios.views import BeneficiariosListView, BeneficiariosCreateView, BeneficiariosUpdateView, DeleteBeneficiario
-from operativos.views import OperativosListView, OperativosCreateView, OperativosDetailView
+from beneficiarios.views import BeneficiarioDetailView,BeneficiariosListView, BeneficiariosCreateView, BeneficiariosUpdateView, BeneficiarioDeleteView
+from operativos.views import EntregaCreateView ,OperativosListView, OperativosCreateView, OperativosDetailView, handleEntregar, OperativoCerrarView, OperativoAbrirView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index),
     path('beneficiarios/', BeneficiariosListView.as_view(), name='beneficiarios'),
     path('beneficiarios/crear', BeneficiariosCreateView.as_view(), name='beneficiarios_crear'),
+    path('beneficiarios/detalles/<int:pk>/', BeneficiarioDetailView.as_view(), name='beneficiarios_detalles'),
     path('beneficiarios/editar/<int:pk>/', BeneficiariosUpdateView.as_view(), name='beneficiarios_editar'),
-    path('beneficiarios/eliminar/<int:pk>/', DeleteBeneficiario, name='beneficiarios_eliminar'),
+    path('beneficiarios/eliminar/<int:pk>/', BeneficiarioDeleteView.as_view(), name='beneficiarios_eliminar'),
     path('operativos/', OperativosListView.as_view(), name='operativos'),
     path('operativos/crear', OperativosCreateView.as_view(), name='operativos_crear'),
     path('operativos/admin/<int:pk>/', OperativosDetailView.as_view(), name='operativos_administrar'),
+    path('operativos/cerrar/<int:pk>/', OperativoCerrarView.as_view(), name='operativos_cerrar'),
+    path('operativos/abrir/<int:pk>/', OperativoAbrirView.as_view(), name='operativos_abrir'),
+    path('operativos/entregar/<int:pk_operativo>/<int:pk_beneficiario>/', handleEntregar, name='operativos_entregar'),
+    path('operativos/entregarespecial/<int:pk_operativo>/<int:pk_beneficiario>/', EntregaCreateView.as_view(), name='operativos_entregar_especial'),
     path('reportes/', reportes, name='reportes'),
     path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout')

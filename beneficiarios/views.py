@@ -25,6 +25,7 @@ class BeneficiariosListView(generic.ListView):
     model = Beneficiarios
     template_name = 'sections/beneficiarios/index.html'  # Specify your own template name/location
 
+
 class BeneficiariosCreateView(generic.CreateView):
     template_name = "sections/beneficiarios/crear.html"
 
@@ -35,6 +36,7 @@ class BeneficiariosCreateView(generic.CreateView):
             'cargo':c,
             'gerencias':g
         }
+
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -89,6 +91,7 @@ class BeneficiariosUpdateView(generic.View):
         cargo = request.POST.get('cargo')
         status = request.POST.get('status')
         gerencia = request.POST.get('gerencia')
+        observacion = request.POST.get('observacion')
 
         try:
             b = Beneficiarios.objects.get(cedula=cedula)
@@ -115,6 +118,7 @@ class BeneficiariosUpdateView(generic.View):
         b.cargo = cargo
         b.status = status
         b.gerencia = g
+        b.observacion = observacion
         b.save()
 
         messages.add_message(request, messages.SUCCESS, 'Beneficiario editado con exito')
@@ -126,3 +130,36 @@ def validcedula(cedula):
     else:
         return False
         
+
+class BeneficiarioDeleteView(generic.DeleteView):
+    template_name = "sections/beneficiarios/delete.html"
+    def get(self, request, *args, **kwargs):
+        beneficiario = Beneficiarios.objects.get(pk=kwargs['pk'])
+        context = {
+            'beneficiario': beneficiario
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        observacion = request.POST.get('observacion')
+        try:
+            b = Beneficiarios.objects.get(cedula=kwargs['pk'])
+        except Beneficiarios.DoesNotExist:
+            messages.add_message(request, messages.ERROR, 'No existe el beneficiario')
+            return redirect('beneficiarios')
+        b.status = 0
+        b.observacion = observacion
+        b.save()
+        messages.add_message(request, messages.SUCCESS, 'Beneficiario deshabilitado')
+        return redirect('beneficiarios')
+
+
+class BeneficiarioDetailView(generic.View):
+    template_name = "sections/beneficiarios/detail.html"
+
+    def get(self, request, *args, **kwargs):
+        beneficiario = Beneficiarios.objects.get(pk=kwargs['pk'])
+        context = {
+            'beneficiario':beneficiario
+        }
+        return render(request, self.template_name, context)

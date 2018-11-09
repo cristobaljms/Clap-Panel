@@ -1,0 +1,24 @@
+{% extends 'base.html' %} {% block content %}
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Detalles de beneficiario</h1>
+    </div>
+
+    <h5>
+        <b>Cedula:</b> {{beneficiario.cedula}}</h5>
+    <h5>
+        <b>Nombres:</b> {{beneficiario.nombres}}</h5>
+    <h5>
+        <b>Cargo:</b> {{beneficiario.cargo}}</h5>
+    <h5>
+        <b>Gerencia:</b> {{beneficiario.gerencia}}</h5>
+    <h5>
+        {% if beneficiario.status %}
+        <b>Status:</b> Activo</h5>
+    {% else %}
+    <b>Status:</b> Inactivo</h5>
+    {% endif %}
+    <h5>
+        <b>Observacion:</b> {{beneficiario.observacion}}</h5>
+</main>
+{% endblock %}
