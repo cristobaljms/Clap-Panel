@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import glob
 from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -77,16 +78,13 @@ WSGI_APPLICATION = 'root.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'clapdb',
-        'USER': 'postgres',
-        'PASSWORD': '87267B0l1v4r',
-        'HOST': '192.168.1.5',
-        'PORT': 5432,
-    }
-}
+conffiles = glob.glob(os.path.join(os.path.dirname(__file__), 'config', '*.conf'))
+conffiles.sort()
+for f in conffiles:
+    try:
+        execfile(os.path.abspath(f))
+    except Exception:
+        exec(open(os.path.abspath(f)).read())
 
 
 # Password validation

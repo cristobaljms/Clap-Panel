@@ -8,7 +8,8 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import A4, landscape, portrait
 from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER, TA_LEFT, TA_RIGHT
-from operativos.models import Operativo
+from operativos.models import Operativo, Entrega
+from beneficiarios.models import Beneficiarios
 from django.views import generic
 
 class ReportesOperativosListView(generic.ListView):
@@ -17,14 +18,15 @@ class ReportesOperativosListView(generic.ListView):
 
 def header(canvas, doc):
     canvas.saveState()
-    canvas.drawImage("static/img/bolivar.jpg", 60, 730, 90, 80,preserveAspectRatio=True)
-    canvas.drawImage("static/img/transbolivar.png", 450, 730, 90, 80,preserveAspectRatio=True)
+    canvas.drawImage("static/img/bolivar.jpg", 40, 760, 90, 80,preserveAspectRatio=True)
+    canvas.drawImage("static/img/transbolivar.png", 130, 775, 70, 60,preserveAspectRatio=True)
     canvas.restoreState()
 
-def write_pdf_view(request):
+def write_pdf_view(request, pk_operativo):
 
-    pk_operativo = request.POST.get("pk_operativo")
+    #pk_operativo = request.POST.get("pk_operativo")
     operativo = Operativo.objects.get(pk=pk_operativo)
+    entregas = Entrega.objects.filter(operativo=pk_operativo)
 
     doc = SimpleDocTemplate("/tmp/somefilename.pdf", pagesize=portrait(A4))
     Story = []
@@ -37,12 +39,86 @@ def write_pdf_view(request):
     text = "<b>REPORTE DE ENTREGAS DE ALIMENTOS</b>"
     p = Paragraph(text, ps)
     Story.append(p)
-    Story.append(Spacer(1,0.1*inch))
+    Story.append(Spacer(1,0.5*inch))
     
-    text = "<b>Operativo: {{operativo.fecha}}</b>"
+    ps = ParagraphStyle('parrafos',
+                           alignment = TA_JUSTIFY,
+                           fontSize = 10,
+                           fontName="Times-Roman")
+
+    #__________________________________________--
+
+    text = "<b>Fecha: </b>{}".format(operativo.fecha)
     p = Paragraph(text, ps)
     Story.append(p)
-    Story.append(Spacer(1,0.3*inch))
+    Story.append(Spacer(1,0.05*inch))
+    text = "<b>Proveedor: </b>{}".format(operativo.proveedor)
+    p = Paragraph(text, ps)
+    Story.append(p)
+    Story.append(Spacer(1,0.05*inch))
+    text = "<b>Responsable: </b>{}".format(operativo.responsable)
+    p = Paragraph(text, ps)
+    Story.append(p)
+    Story.append(Spacer(1,0.05*inch))
+    text = "<b>Bolsas recibidas: </b>{} <b>Bolsas entregadas: </b>{} <b>Bolsas sobrantes: </b>{}".format(operativo.nbolsas, operativo.nbolsas, operativo.nbolsas)
+    p = Paragraph(text, ps)
+    Story.append(p)
+    Story.append(Spacer(1,0.4*inch))
+
+    ps = ParagraphStyle('parrafos',
+                           alignment = TA_JUSTIFY,
+                           fontSize = 11,
+                           fontName="Times-Roman")
+
+    text = "<b>Beneficiarios especiales: </b>"
+    p = Paragraph(text, ps)
+    Story.append(p)
+    Story.append(Spacer(1,0.2*inch))
+
+    ps = ParagraphStyle('parrafos',
+                           alignment = TA_JUSTIFY,
+                           fontSize = 10,
+                           fontName="Times-Roman")
+
+    nentregas = 0
+    for entrega in entregas:
+        if (entrega.especial == 1):
+            beneficiario = Beneficiarios.objects.get(pk=entrega.beneficiario.pk)
+            text = "{} - {}".format(entrega.nbolsas, beneficiario.nombres)
+            p = Paragraph(text, ps)
+            Story.append(p)
+            Story.append(Spacer(1,0.05*inch))
+            nentregas = nentregas + entrega.nbolsas
+
+    ps = ParagraphStyle('parrafos',
+                           alignment = TA_JUSTIFY,
+                           fontSize = 11,
+                           fontName="Times-Roman")
+
+    text = " "
+    p = Paragraph(text, ps)
+    Story.append(p)
+    Story.append(Spacer(1,0.2*inch))
+
+    text = "<b> Listado de Beneficiarios: </b>"
+    p = Paragraph(text, ps)
+    Story.append(p)
+    Story.append(Spacer(1,0.2*inch))
+
+    ps = ParagraphStyle('parrafos',
+                           alignment = TA_JUSTIFY,
+                           fontSize = 10,
+                           fontName="Times-Roman")
+
+    nentregas = 0
+    for entrega in entregas:
+        if (entrega.especial == 0):
+            beneficiario = Beneficiarios.objects.get(pk=entrega.beneficiario.pk)
+            text = "{} - {}".format(entrega.nbolsas, beneficiario.nombres)
+            p = Paragraph(text, ps)
+            Story.append(p)
+            Story.append(Spacer(1,0.05*inch))
+            nentregas = nentregas + entrega.nbolsas
 
     doc.build(Story, header)
 
