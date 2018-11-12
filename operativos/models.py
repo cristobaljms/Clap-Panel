@@ -3,7 +3,7 @@ from beneficiarios.models import Beneficiarios
 # Create your models here.
 
 class Operativo(models.Model):
-    fecha = models.DateTimeField(auto_now_add=True)
+    fecha = models.DateField(auto_now_add=True)
     status = models.IntegerField(default=1)
     nbolsas = models.IntegerField(default=0)
     nbolsasForaneas = models.IntegerField(default=0)

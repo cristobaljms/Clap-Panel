@@ -23,8 +23,9 @@ class OperativosCreateView(generic.CreateView):
     def post(self, request, *args, **kwargs):
         nbolsas = request.POST.get('nbolsas')
         proveedor = request.POST.get('proveedor')
-
-        o = Operativo(nbolsas=nbolsas, proveedor=proveedor)
+        responsable = request.POST.get('responsable')
+    
+        o = Operativo(nbolsas=nbolsas, proveedor=proveedor, responsable=responsable)
         o.save()
 
         messages.add_message(request, messages.SUCCESS, 'Operativo creado con exito')
@@ -201,9 +202,15 @@ class EntregaCreateView(generic.CreateView):
 def handleEntregar(request, pk_operativo, pk_beneficiario):
     operativo = Operativo.objects.get(pk=pk_operativo)
     beneficiario = Beneficiarios.objects.get(pk=pk_beneficiario)
-    entrega = Entrega(operativo=operativo, beneficiario=beneficiario)
-    entrega.save()
-    messages.add_message(request, messages.SUCCESS, 'Bolsa entregada a {}'.format(beneficiario.nombres))
+    entrega = Entrega.objects.filter(beneficiario=pk_beneficiario, operativo=pk_operativo)
+    print(entrega)
+    try:
+        Entrega.objects.get(beneficiario=pk_beneficiario, operativo=pk_operativo)
+        messages.add_message(request, messages.ERROR, '{} Ya recibio bolsa'.format(beneficiario.nombres))
+    except Entrega.DoesNotExist:
+        entrega = Entrega(operativo=operativo, beneficiario=beneficiario)
+        entrega.save()
+        messages.add_message(request, messages.SUCCESS, 'Bolsa entregada a {}'.format(beneficiario.nombres))
     return redirect('operativos_administrar', pk=pk_operativo)
 
 

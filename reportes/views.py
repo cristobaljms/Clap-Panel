@@ -45,9 +45,9 @@ def write_pdf_view(request, pk_operativo):
                            alignment = TA_JUSTIFY,
                            fontSize = 10,
                            fontName="Times-Roman")
-
-    #__________________________________________--
-
+    nentregadas = 0
+    for entrega in entregas:
+        nentregadas = nentregadas + entrega.nbolsas
     text = "<b>Fecha: </b>{}".format(operativo.fecha)
     p = Paragraph(text, ps)
     Story.append(p)
@@ -60,7 +60,7 @@ def write_pdf_view(request, pk_operativo):
     p = Paragraph(text, ps)
     Story.append(p)
     Story.append(Spacer(1,0.05*inch))
-    text = "<b>Bolsas recibidas: </b>{} <b>Bolsas entregadas: </b>{} <b>Bolsas sobrantes: </b>{}".format(operativo.nbolsas, operativo.nbolsas, operativo.nbolsas)
+    text = "<b>Bolsas recibidas: </b>{} <b>Bolsas entregadas: </b>{} <b>Bolsas sobrantes: </b>{}".format(operativo.nbolsas, nentregadas, operativo.nbolsas-nentregadas)
     p = Paragraph(text, ps)
     Story.append(p)
     Story.append(Spacer(1,0.4*inch))
@@ -77,48 +77,88 @@ def write_pdf_view(request, pk_operativo):
 
     ps = ParagraphStyle('parrafos',
                            alignment = TA_JUSTIFY,
-                           fontSize = 10,
+                           fontSize = 8,
                            fontName="Times-Roman")
+
+
+    titles = [
+        Paragraph('N° bolsas', ps),
+        Paragraph('CI', ps),
+        Paragraph('Beneficiario', ps),
+        Paragraph('Comision', ps),
+        Paragraph('Observacion', ps),
+    ]
+    despachos_formated = [titles]
 
     nentregas = 0
     for entrega in entregas:
         if (entrega.especial == 1):
             beneficiario = Beneficiarios.objects.get(pk=entrega.beneficiario.pk)
-            text = "{} - {}".format(entrega.nbolsas, beneficiario.nombres)
-            p = Paragraph(text, ps)
-            Story.append(p)
-            Story.append(Spacer(1,0.05*inch))
+            nbolsas = Paragraph(str(entrega.nbolsas), ps) 
+            nombres = Paragraph(beneficiario.nombres, ps) 
+            cedula = Paragraph(beneficiario.pk, ps)
+            if (entrega.comision_servicio == 1):
+                comision = Paragraph("SI", ps)
+            else: 
+                comision = Paragraph("No", ps) 
+            observacion = Paragraph(entrega.observacion, ps)  
             nentregas = nentregas + entrega.nbolsas
+            despachos_formated.append([nbolsas, cedula, nombres, comision, observacion])
 
+    despachos_formated.append(["Total: {}".format(nentregas), "", "", ""])
+    t=Table(despachos_formated, (45,50,200,45,150))
+    t.setStyle(TableStyle([
+        ('BACKGROUND',(0,0),(5,0),colors.lightgrey),
+        ('INNERGRID',(0,0),(5,0), 0.25, colors.gray),
+        ('BOX',(0,0),(5,0), 0.25, colors.gray)
+    ]))
+
+    Story.append(t)
+    Story.append(Spacer(1,0.2*inch))
     ps = ParagraphStyle('parrafos',
                            alignment = TA_JUSTIFY,
                            fontSize = 11,
                            fontName="Times-Roman")
 
-    text = " "
-    p = Paragraph(text, ps)
-    Story.append(p)
-    Story.append(Spacer(1,0.2*inch))
-
-    text = "<b> Listado de Beneficiarios: </b>"
+    text = "<b>Beneficiarios: </b>"
     p = Paragraph(text, ps)
     Story.append(p)
     Story.append(Spacer(1,0.2*inch))
 
     ps = ParagraphStyle('parrafos',
                            alignment = TA_JUSTIFY,
-                           fontSize = 10,
+                           fontSize = 8,
                            fontName="Times-Roman")
+
+    titles = [
+        Paragraph('N° bolsas', ps),
+        Paragraph('CI', ps),
+        Paragraph('Beneficiario', ps),
+        Paragraph('Observacion', ps),
+    ]
+    despachos_formated = [titles]
 
     nentregas = 0
     for entrega in entregas:
         if (entrega.especial == 0):
             beneficiario = Beneficiarios.objects.get(pk=entrega.beneficiario.pk)
-            text = "{} - {}".format(entrega.nbolsas, beneficiario.nombres)
-            p = Paragraph(text, ps)
-            Story.append(p)
-            Story.append(Spacer(1,0.05*inch))
+            nbolsas = Paragraph(str(entrega.nbolsas), ps), 
+            nombres = Paragraph(beneficiario.nombres, ps),  
+            cedula = Paragraph(beneficiario.pk, ps),  
+            observacion = Paragraph(entrega.observacion, ps), 
             nentregas = nentregas + entrega.nbolsas
+            despachos_formated.append([nbolsas, cedula, nombres, observacion])
+            nentregas = nentregas + entrega.nbolsas
+    despachos_formated.append(["Total: {}".format(nentregas), "", "", ""])
+
+    t=Table(despachos_formated, (45, 50,230,150))
+    t.setStyle(TableStyle([
+        ('BACKGROUND',(0,0),(3,0),colors.lightgrey),
+        ('INNERGRID',(0,0),(3,0), 0.25, colors.gray),
+        ('BOX',(0,0),(3,0), 0.25, colors.gray)
+        ]))
+
+    Story.append(t)
 
     doc.build(Story, header)
 
