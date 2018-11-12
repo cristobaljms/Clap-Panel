@@ -20,24 +20,25 @@ from .views import index, login, beneficiarios, operativos, reportes
 from beneficiarios.views import BeneficiarioDetailView,BeneficiariosListView, BeneficiariosCreateView, BeneficiariosUpdateView, BeneficiarioDeleteView
 from operativos.views import EntregaCreateView ,OperativosListView, OperativosCreateView, OperativosDetailView, handleEntregar, OperativoCerrarView, OperativoAbrirView
 from reportes.views import write_pdf_view, ReportesOperativosListView
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index),
-    path('beneficiarios/', BeneficiariosListView.as_view(), name='beneficiarios'),
-    path('beneficiarios/crear', BeneficiariosCreateView.as_view(), name='beneficiarios_crear'),
-    path('beneficiarios/detalles/<int:pk>/', BeneficiarioDetailView.as_view(), name='beneficiarios_detalles'),
-    path('beneficiarios/editar/<int:pk>/', BeneficiariosUpdateView.as_view(), name='beneficiarios_editar'),
-    path('beneficiarios/eliminar/<int:pk>/', BeneficiarioDeleteView.as_view(), name='beneficiarios_eliminar'),
-    path('operativos/', OperativosListView.as_view(), name='operativos'),
-    path('operativos/crear', OperativosCreateView.as_view(), name='operativos_crear'),
-    path('operativos/admin/<int:pk>/', OperativosDetailView.as_view(), name='operativos_administrar'),
-    path('operativos/cerrar/<int:pk>/', OperativoCerrarView.as_view(), name='operativos_cerrar'),
-    path('operativos/abrir/<int:pk>/', OperativoAbrirView.as_view(), name='operativos_abrir'),
-    path('operativos/entregar/<int:pk_operativo>/<int:pk_beneficiario>/', handleEntregar, name='operativos_entregar'),
-    path('operativos/entregarespecial/<int:pk_operativo>/<int:pk_beneficiario>/', EntregaCreateView.as_view(), name='operativos_entregar_especial'),
-    path('reportes/', ReportesOperativosListView.as_view(), name='reportes'),
-    path('reportes/general/<int:pk_operativo>/', write_pdf_view, name="reportes_generar"),
+    path('beneficiarios/', login_required(BeneficiariosListView.as_view(), login_url='/login/'), name='beneficiarios'),
+    path('beneficiarios/crear', login_required(BeneficiariosCreateView.as_view(), login_url='/login/') , name='beneficiarios_crear'),
+    path('beneficiarios/detalles/<int:pk>/', login_required(BeneficiarioDetailView.as_view(), login_url='/login/') , name='beneficiarios_detalles'),
+    path('beneficiarios/editar/<int:pk>/', login_required(BeneficiariosUpdateView.as_view(), login_url='/login/') , name='beneficiarios_editar'),
+    path('beneficiarios/eliminar/<int:pk>/', login_required(BeneficiarioDeleteView.as_view(), login_url='/login/') , name='beneficiarios_eliminar'),
+    path('operativos/', login_required(OperativosListView.as_view(), login_url='/login/') , name='operativos'),
+    path('operativos/crear', login_required(OperativosCreateView.as_view(), login_url='/login/') , name='operativos_crear'),
+    path('operativos/admin/<int:pk>/', login_required(OperativosDetailView.as_view(), login_url='/login/') , name='operativos_administrar'),
+    path('operativos/cerrar/<int:pk>/', login_required(OperativoCerrarView.as_view(), login_url='/login/') , name='operativos_cerrar'),
+    path('operativos/abrir/<int:pk>/', login_required(OperativoAbrirView.as_view(), login_url='/login/') , name='operativos_abrir'),
+    path('operativos/entregar/<int:pk_operativo>/<int:pk_beneficiario>/', login_required(handleEntregar, login_url='/login/') , name='operativos_entregar'),
+    path('operativos/entregarespecial/<int:pk_operativo>/<int:pk_beneficiario>/', login_required(EntregaCreateView.as_view(), login_url='/login/') , name='operativos_entregar_especial'),
+    path('reportes/', login_required(ReportesOperativosListView.as_view(), login_url='/login/') , name='reportes'),
+    path('reportes/general/<int:pk_operativo>/', login_required(write_pdf_view, login_url='/login/') , name="reportes_generar"),
     path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout')
 ]
